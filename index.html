@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+       
+    <meta charset="UTF-8">
+       
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Игра Мемо</title>
+        <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 100px);
+            gap: 10px;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .card.flipped {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .timer {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+        <div>
+                <h1>Игра Мемо</h1>
+                <div class="timer" id="timer">Время: 0 секунд</div>
+                <div class="grid" id="grid"></div>
+            </div>
+       
+    <script>
+        const cards = [
+            '🍎', '🍌', '🍇', '🍓', '🍉', '🍊',
+            '🍎', '🍌', '🍇', '🍓', '🍉', '🍊'
+        ];
+        let flippedCards = [];
+        let matchedCards = 0;
+        let startTime;
+        let timerInterval;
+
+        const grid = document.getElementById('grid');
+        const timerDisplay = document.getElementById('timer');
+    
+        function createCards() {
+            cards.sort(() => 0.5 - Math.random()).forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.value = card;
+                cardElement.addEventListener('click', flipCard);
+                grid.appendChild(cardElement);
+            });
+            startTimer();
+        }
+
+        
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+    
+        function updateTimer() {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            timerDisplay.textContent = `Время: ${elapsedTime} секунд`;
+        }
+
+        function flipCard() {
+            if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
+                this.classList.add('flipped');
+                this.textContent = this.dataset.value;
+                flippedCards.push(this);
+
+                if (flippedCards.length === 2) {
+                    setTimeout(checkForMatch, 1000);
+                }
+            }
+        }
+
+        
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.value === card2.dataset.value) {
+                matchedCards += 2;
+                card1.removeEventListener('click', flipCard);
+                card2.removeEventListener('click', flipCard);
+            } else {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                card1.textContent = '';
+                card2.textContent = '';
+            }
+            flippedCards = [];
+            if (matchedCards === cards.length) {
+                clearInterval(timerInterval);
+                setTimeout(() => alert(`Вы выиграли! Время: ${timerDisplay.textContent}`), 500);
+            }
+        }
+        createCards();
+    </script>
+</body>
+
+</html>
